@@ -23,6 +23,7 @@ public class Generate
     HashSet<Integer> writeProhibit = new HashSet<>();//不可以做运算写入的寄存器（系统用和jr/jalr用的）
     HashSet<Integer> hasVal = new HashSet<>();//有值的寄存器
     List<Integer> addrList = new ArrayList<>();
+    List<String> labelList = new ArrayList<>();
 
     List<String> ans = new ArrayList<>();//输出的字符串数组
 
@@ -143,6 +144,40 @@ public class Generate
             cnt++;
         }
 
+        //至此所有不涉及跳转分支的都应该运行完了，会通过end标签直接指向程序终止（通过）
+        ans.add("beq $0, $0, end");
+        //以下完成跳转指令，保证每条这样的指令都只会占两条，比如beq和j会是ori+beq，jal是ori+jr
+        //保证beq运行完直接到end，jal会对应jr
+        for(int i=0;i<this.labelList.size();i++)
+        {
+            //先输入label 'i' :
+            String text="label"+i+":";
+            ans.add(text);
+            //不同分支跳转指令不同处理
+            String instr = this.labelList.get(i);
+            switch (instr)
+            {
+                case "beq":
+                    iInstruction=new Ori(this.writeProhibit);
+                    ans.add(iInstruction.createMIPSText());
+                    ans.add("beq $0, $0, end");
+                    break;
+                case "j":
+                    break;
+                case "jal":
+                    break;
+                case "jalr":
+                    break;
+                default:
+                    System.out.println(" Σ( ° △ °|||)︴  又在分支跳转里放奇怪的指令了");
+                    System.out.println("错误指令："+instr);
+                    ans.add("beq $0, $0, end");
+                    break;
+            }
+        }
+
+        //保证程序运行结束
+        ans.add("end:");
         update(ans);
     }
 
@@ -221,13 +256,14 @@ public class Generate
                 this.addrList.add(Integer.valueOf(iInstruction.getImm16()));
                 break;
             case "beq":
-                this.iInstruction = new Beq(instructionNum * 4, cnt * 4);
+                this.iInstruction = new Beq(instructionNum * 4, cnt * 4, this.labelList);
                 newInstr = iInstruction.createMIPSText();
                 if (newInstr == null)
                 {
                     return false;
                 }
                 ans.add(newInstr);
+                this.labelList.add("beq");
                 break;
             default:
                 System.out.println("未知指令" + instruction);

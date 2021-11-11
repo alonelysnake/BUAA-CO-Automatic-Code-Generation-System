@@ -3,18 +3,22 @@ package Instruction.I;
 import Instruction.InstructionDic;
 import Instruction.RegDic;
 
+import java.awt.*;
+import java.util.List;
 import java.util.Random;
 
 public class Beq extends IInstruction
 {
     private int range;//beq可跳转的总地址
     private int nowAddr;//当前地址
+    private List<String>labelList;
 
-    public Beq(int range, int nowAddr)
+    public Beq(int range, int nowAddr, List<String>labelList)
     {
         this.setOp(InstructionDic.BEQ);
         this.range = range;
         this.nowAddr = nowAddr;
+        this.labelList= labelList;
     }
 
     @Override
@@ -55,7 +59,7 @@ public class Beq extends IInstruction
     @Override
     protected String chooseLabel()
     {
-        return null;
+        return "label"+this.labelList.size();
     }
 
     @Override
@@ -67,6 +71,6 @@ public class Beq extends IInstruction
                 ", $" +
                 RegDic.RegName.get(this.getRt()) +
                 ", " +
-                this.getImm16();
+                this.getLabel();
     }
 }
