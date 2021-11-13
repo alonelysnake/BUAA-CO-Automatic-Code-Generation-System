@@ -25,11 +25,13 @@ public class Main
         I.add("sw");
         I.add("lw");
         I.add("beq");
+        //J.add("j");
+        J.add("jal");
 
         System.out.println("目前支持指令：");
-        System.out.println("R:addu    subu");
+        System.out.println("R:addu    subu    jr");
         System.out.println("I:ori    lui    sw    lw    beq");
-        System.out.println("J:555太难了还没做");
+        System.out.println("J:j    jal");
         System.out.print("要生成的指令总数为(建议在20-30条)：");
         Scanner scanner = new Scanner(System.in);
         int num = scanner.nextInt();

@@ -1,5 +1,7 @@
 import Instruction.I.*;
+import Instruction.J.J;
 import Instruction.J.JInstruction;
+import Instruction.J.Jal;
 import Instruction.R.Addu;
 import Instruction.R.Jr;
 import Instruction.R.RInstruction;
@@ -85,14 +87,16 @@ public class Generate
 
     public void setJ(Set<String> j)
     {
-        J = j;
+        this.J = j;
     }
 
     public void Run()
     {
         int RNum = (instructionNum - 6) / 3;//R指令数目
-        int INum = instructionNum - RNum - 6;//I指令数目
+        int Jnum = 2;//J指令数目
+        int INum = instructionNum - 6 - RNum - Jnum;//I指令数目
 
+        //寄存器赋初始值
         for (int i = 0; i < 3; i++)
         {
             iInstruction = new Ori(writeProhibit);
@@ -102,6 +106,7 @@ public class Generate
 
             cnt++;
         }
+        //存储部分值（方便后续存取指令测试）
         for (int i = 0; i < 3; i++)
         {
             this.iInstruction = new Sw(this.hasVal);
@@ -110,6 +115,9 @@ public class Generate
 
             cnt++;
         }
+        //以上是寄存器与存储器的初始化部分
+
+        //R指令
         for (int i = 0; i < RNum; i++)
         {
             boolean add = false;
@@ -127,6 +135,15 @@ public class Generate
             cnt++;
         }
 
+        //J指令
+        for (int i = 0; i < Jnum; i++)
+        {
+            jInstruction = new Jal(this.labelList);
+            this.ans.add(jInstruction.createMIPSText());
+            this.labelList.add("jal");
+        }
+
+        //I指令
         for (int i = 0; i < INum; i++)
         {
             boolean add = false;
@@ -144,34 +161,54 @@ public class Generate
             cnt++;
         }
 
+        if (this.J.contains("j"))
+        {
+            jInstruction = new J(this.labelList);
+            this.ans.add(jInstruction.createMIPSText());
+            this.labelList.add("j");
+        }
+
+
         //至此所有不涉及跳转分支的都应该运行完了，会通过end标签直接指向程序终止（通过）
         ans.add("beq $0, $0, end");
         //以下完成跳转指令，保证每条这样的指令都只会占两条，比如beq和j会是ori+beq，jal是ori+jr
-        //保证beq运行完直接到end，jal会对应jr
-        for(int i=0;i<this.labelList.size();i++)
+        //保证beq运行完直接到end（使用j指令），jal会对应jr
+        for (int i = 0; i < this.labelList.size(); i++)
         {
             //先输入label 'i' :
-            String text="label"+i+":";
+            String text = "label" + i + ":";
             ans.add(text);
             //不同分支跳转指令不同处理
             String instr = this.labelList.get(i);
             switch (instr)
             {
                 case "beq":
-                    iInstruction=new Ori(this.writeProhibit);
+                    iInstruction = new Ori(this.writeProhibit);
+                    ans.add(iInstruction.createMIPSText());
+                    if (this.J.contains("j"))
+                    {
+                        ans.add("j end");
+                    } else
+                    {
+                        ans.add("beq $0, $0, end");
+                    }
+                    break;
+                case "j":
+                    iInstruction = new Ori(this.writeProhibit);
                     ans.add(iInstruction.createMIPSText());
                     ans.add("beq $0, $0, end");
                     break;
-                case "j":
-                    break;
                 case "jal":
+                    iInstruction = new Ori(this.writeProhibit);
+                    ans.add(iInstruction.createMIPSText());
+                    ans.add("jr $ra");
                     break;
                 case "jalr":
                     break;
                 default:
                     System.out.println(" Σ( ° △ °|||)︴  又在分支跳转里放奇怪的指令了");
-                    System.out.println("错误指令："+instr);
-                    ans.add("beq $0, $0, end");
+                    System.out.println("错误指令：" + instr);
+                    ans.add("j end");
                     break;
             }
         }
@@ -184,20 +221,37 @@ public class Generate
     public boolean addR(int index, List<String> RList)
     {
         String instruction = RList.get(index);
+        String newInstr;
         switch (instruction)
         {
             case "addu":
                 this.rInstruction = new Addu(this.writeProhibit, this.hasVal);
-                ans.add(this.rInstruction.createMIPSText());
+                newInstr = this.rInstruction.createMIPSText();
+                if (newInstr == null)
+                {
+                    return false;
+                }
+                ans.add(newInstr);
+                this.hasVal.add(rInstruction.getRd());
                 break;
             case "subu":
                 this.rInstruction = new Subu(this.writeProhibit, this.hasVal);
-                ans.add(this.rInstruction.createMIPSText());
-                this.hasVal.add(this.rInstruction.getRd());
+                newInstr = this.rInstruction.createMIPSText();
+                if (newInstr == null)
+                {
+                    return false;
+                }
+                ans.add(newInstr);
+                this.hasVal.add(rInstruction.getRd());
                 break;
             case "jr":
                 this.rInstruction = new Jr();
-                ans.add(this.rInstruction.createMIPSText());
+                newInstr = this.rInstruction.createMIPSText();
+                if (newInstr == null)
+                {
+                    return false;
+                }
+                ans.add(newInstr);
                 break;
             case "jalr":
                 break;

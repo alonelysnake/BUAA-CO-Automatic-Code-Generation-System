@@ -3,15 +3,14 @@ package Instruction.I;
 import Instruction.InstructionDic;
 import Instruction.RegDic;
 
-import java.awt.*;
 import java.util.List;
 import java.util.Random;
 
 public class Beq extends IInstruction
 {
-    private int range;//beq可跳转的总地址
-    private int nowAddr;//当前地址
-    private List<String>labelList;
+    final private int range;//beq可跳转的总地址
+    final private int nowAddr;//当前地址
+    final private List<String>labelList;
 
     public Beq(int range, int nowAddr, List<String>labelList)
     {

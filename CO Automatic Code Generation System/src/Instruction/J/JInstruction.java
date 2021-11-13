@@ -2,14 +2,14 @@ package Instruction.J;
 
 import Instruction.Instruction;
 
-import java.util.HashMap;
+import java.util.List;
 
 abstract public class JInstruction extends Instruction
 {
     private String imm26;
     private String label;
     private int nowAddr;//当前地址（跳转一定比当前地址大（暂时以此保证程序不会死循环））
-    private HashMap<String, Integer> labelMap;//指令的标签集合
+    private List<String> labelList;//指令的标签集合
 
     public String getImm26()
     {
@@ -26,9 +26,9 @@ abstract public class JInstruction extends Instruction
         return nowAddr;
     }
 
-    public HashMap<String, Integer> getLabelMap()
+    public List<String> getLabelList()
     {
-        return labelMap;
+        return labelList;
     }
 
     public void setImm26(String imm26)
@@ -41,9 +41,9 @@ abstract public class JInstruction extends Instruction
         this.label = label;
     }
 
-    public void setLabelMap(HashMap<String, Integer> labelMap)
+    public void setLabelList(List<String> labelList)
     {
-        this.labelMap = labelMap;
+        this.labelList = labelList;
     }
 
     public void setNowAddr(int nowAddr)

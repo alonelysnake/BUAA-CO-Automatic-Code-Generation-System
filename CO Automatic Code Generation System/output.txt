@@ -1,25 +1,31 @@
-ori $s4, $a2, 0x579b
-ori $s0, $zero, 0x8d62
-ori $s2, $a2, 0xfb0b
-sw $t5, 124($zero)
-sw $t9, 120($zero)
-sw $v1, 188($zero)
-addu $s4, $s0, $s0
-subu $v0, $s4, $s4
-addu $t3, $v0, $s0
-subu $t5, $s4, $s4
-ori $t9, $s6, 0xb11
-ori $s3, $s7, 0x430d
-ori $s5, $v0, 0xb484
-ori $s3, $s1, 0xe6c
-beq $t5, $t5, label0
-sw $k1, 164($zero)
-lui $a0, 0x2442
-lw $s1, 164, ($zero)
-ori $a3, $s0, 0xe8b
-lui $t0, 0x6b6e
+ori $t6, $s4, 0xa073
+ori $s3, $ra, 0x72cd
+ori $s4, $v1, 0x43ac
+sw $s4, 152($zero)
+sw $t6, 172($zero)
+sw $s4, 108($zero)
+addu $v0, $t6, $s4
+subu $t8, $t6, $t6
+subu $s1, $s3, $t6
+addu $a2, $s1, $v0
+jal label0
+jal label1
+sw $v0, 128($zero)
+sw $v0, 16($zero)
+ori $s1, $a2, 0x12e8
+ori $s5, $a3, 0x8e4e
+lui $s4, 0xbd10
+sw $s3, 172($zero)
+ori $t6, $k0, 0xfcdc
+beq $k0, $s6, label2
 beq $0, $0, end
 label0:
-ori $t5, $t3, 0xc84b
+ori $v0, $fp, 0x265d
+jr $ra
+label1:
+ori $s3, $k0, 0x7bf0
+jr $ra
+label2:
+ori $a1, $t0, 0xc72c
 beq $0, $0, end
 end:

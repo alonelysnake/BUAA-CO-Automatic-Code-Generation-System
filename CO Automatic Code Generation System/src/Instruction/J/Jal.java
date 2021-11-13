@@ -3,15 +3,21 @@ package Instruction.J;
 
 import Instruction.InstructionDic;
 
-import java.util.HashMap;
+import java.util.List;
 
 public class Jal extends JInstruction
 {
-    public Jal(int nowAddr, HashMap<String,Integer>labelMap)
+    public Jal(int nowAddr, List<String>labelList)
     {
         this.setOp(InstructionDic.JAL);
-        this.setLabelMap(labelMap);
+        this.setLabelList(labelList);
         this.setNowAddr(nowAddr);
+    }
+
+    public Jal(List<String>labelList)
+    {
+        this.setOp(InstructionDic.JAL);
+        this.setLabelList(labelList);
     }
 
     @Override
@@ -23,7 +29,7 @@ public class Jal extends JInstruction
     @Override
     protected String chooseLabel()
     {
-        return null;
+        return "label"+this.getLabelList().size();
     }
 
     @Override
@@ -31,6 +37,6 @@ public class Jal extends JInstruction
     {
         super.createMIPSText();
         //jal label
-        return "jal " + this.getLabelMap();
+        return "jal " + this.getLabel();
     }
 }

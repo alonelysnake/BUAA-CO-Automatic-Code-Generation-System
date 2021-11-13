@@ -2,11 +2,14 @@ package Instruction.J;
 
 import Instruction.InstructionDic;
 
+import java.util.List;
+
 public class J extends JInstruction
 {
-    public J()
+    public J(List<String>labelList)
     {
         this.setOp(InstructionDic.J);
+        this.setLabelList(labelList);
     }
 
     @Override
@@ -18,7 +21,7 @@ public class J extends JInstruction
     @Override
     protected String chooseLabel()
     {
-        return null;
+        return "label"+this.getLabelList().size();
     }
 
     @Override
@@ -26,6 +29,6 @@ public class J extends JInstruction
     {
         super.createMIPSText();
         //j label
-        return "j " +this.getLabelMap();
+        return "j " +this.getLabel();
     }
 }
