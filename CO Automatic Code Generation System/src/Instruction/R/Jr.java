@@ -8,10 +8,10 @@ import java.util.Random;
 public class Jr extends RInstruction
 {
     //先固定jr返回值为31
-    public Jr()
+    public Jr(int rsNum)
     {
         this.setFunc(InstructionDic.JR);
-        this.setRs(31);
+        this.setRs(rsNum);
     }
 
     @Override
@@ -23,7 +23,7 @@ public class Jr extends RInstruction
     @Override
     protected int chooseRs()
     {
-        return 31;
+        return this.getRs();
     }
 
     @Override
@@ -41,6 +41,7 @@ public class Jr extends RInstruction
     @Override
     public String createMIPSText()
     {
+        super.createMIPSText();
         //jr rs
         return "jr $" + RegDic.RegName.get(this.getRs());
     }

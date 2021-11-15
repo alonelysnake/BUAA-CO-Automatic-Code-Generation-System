@@ -6,7 +6,7 @@ import java.util.List;
 
 public class J extends JInstruction
 {
-    public J(List<String>labelList)
+    public J(List<String> labelList)
     {
         this.setOp(InstructionDic.J);
         this.setLabelList(labelList);
@@ -21,7 +21,7 @@ public class J extends JInstruction
     @Override
     protected String chooseLabel()
     {
-        return "label"+this.getLabelList().size();
+        return "label" + this.getLabelList().size() * 2;
     }
 
     @Override
@@ -29,6 +29,6 @@ public class J extends JInstruction
     {
         super.createMIPSText();
         //j label
-        return "j " +this.getLabel();
+        return "j " + this.getLabel();
     }
 }

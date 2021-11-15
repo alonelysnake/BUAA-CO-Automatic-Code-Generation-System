@@ -3,31 +3,25 @@ package Instruction.I;
 import Instruction.InstructionDic;
 import Instruction.RegDic;
 
+import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
-public class Ori extends IInstruction
+public class Lh extends IInstruction
 {
-    public Ori(Set<Integer> writeProhibit)
-    {
-        this.setOp(InstructionDic.ORI);
-        this.setWriteProhibit(writeProhibit);
-    }
+    private final List<Integer> addrList;//已经写入的地址
 
-    //指定了rs
-    public Ori(Set<Integer> writeProhibit,int regNum)
+    public Lh(List<Integer> addrList, Set<Integer> writeProhibit)
     {
-        this.setOp(InstructionDic.ORI);
+        this.setOp(InstructionDic.LH);
+        this.addrList = addrList;
         this.setWriteProhibit(writeProhibit);
-        this.setRs(31);
     }
 
     @Override
     protected int chooseRs()
     {
-        int seed = new Random().nextInt();
-        Random random = new Random(seed);
-        return random.nextInt(32);
+        return 0;
     }
 
     @Override
@@ -57,8 +51,10 @@ public class Ori extends IInstruction
     {
         int seed = new Random().nextInt();
         Random random = new Random(seed);
-        int imm = random.nextInt(65535);
-        return Integer.toHexString(imm);
+        int index = random.nextInt(addrList.size());
+        int imm = addrList.get(index);
+        imm += random.nextInt(2) * 2;
+        return Integer.toString(imm);
     }
 
     @Override
@@ -70,19 +66,13 @@ public class Ori extends IInstruction
     @Override
     public String createMIPSText()
     {
-        if(this.getRs()==31)
-        {
-            this.setRt(this.chooseRt());
-            this.setImm16("0");
-        }else
-        {
-            super.createMIPSText();
-        }
-        //ori rt, rs, imm16 用16进制表示
-        return "ori $" + RegDic.RegName.get(this.getRt()) +
-                ", $" +
+        super.createMIPSText();
+        //lh rt, imm16(rs)  固定rs为0
+        return "lh $" + RegDic.RegName.get(this.getRt()) +
+                ", " +
+                this.getImm16() +
+                ", ($" +
                 RegDic.RegName.get(this.getRs()) +
-                ", 0x" +
-                this.getImm16();
+                ")";
     }
 }

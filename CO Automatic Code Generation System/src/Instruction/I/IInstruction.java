@@ -7,11 +7,11 @@ import java.util.Set;
 
 abstract public class IInstruction extends Instruction
 {
-    private int rs;
+    private int rs = 0;
     private int rt;
     private String imm16;//16位立即数
-    private String label;//指令使用的标签
-    private Set<Integer>writeProhibit;//禁止写入的寄存器编号
+    private String label = null;//指令使用的标签
+    private Set<Integer> writeProhibit;//禁止写入的寄存器编号
 
     public String getImm16()
     {
@@ -75,7 +75,7 @@ abstract public class IInstruction extends Instruction
     public String createMachineCode()
     {
         String code;
-        code=this.getOp()+ this.getRs() +this.getRt()+this.getImm16();
+        code = this.getOp() + this.getRs() + this.getRt() + this.getImm16();
         return code;
     }
 

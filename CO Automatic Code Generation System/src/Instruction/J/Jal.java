@@ -7,14 +7,14 @@ import java.util.List;
 
 public class Jal extends JInstruction
 {
-    public Jal(int nowAddr, List<String>labelList)
+    public Jal(int nowAddr, List<String> labelList)
     {
         this.setOp(InstructionDic.JAL);
         this.setLabelList(labelList);
         this.setNowAddr(nowAddr);
     }
 
-    public Jal(List<String>labelList)
+    public Jal(List<String> labelList)
     {
         this.setOp(InstructionDic.JAL);
         this.setLabelList(labelList);
@@ -29,7 +29,7 @@ public class Jal extends JInstruction
     @Override
     protected String chooseLabel()
     {
-        return "label"+this.getLabelList().size();
+        return "label" + this.getLabelList().size() * 2;
     }
 
     @Override

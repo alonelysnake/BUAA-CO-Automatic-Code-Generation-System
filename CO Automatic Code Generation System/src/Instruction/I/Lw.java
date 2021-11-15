@@ -9,7 +9,7 @@ import java.util.Set;
 
 public class Lw extends IInstruction
 {
-    private List<Integer> addrList;//已经写入的地址
+    private final List<Integer> addrList;//已经写入的地址
 
     public Lw(List<Integer> addrList, Set<Integer> writeProhibit)
     {

@@ -14,9 +14,11 @@ public class Generate
 {
     private int instructionNum;//指令条数
     private int cnt = 0;//当前指令index
+    final private int labelBlockSize = 3;//label块大小
     private Set<String> R;//选择的R指令
-    private Set<String> I;//选择的I指令
+    private Set<String> I;//选择的I指令（不分支）
     private Set<String> J;//选择的J指令
+    private Set<String> branch;//I中的分支指令
 
     RInstruction rInstruction;
     IInstruction iInstruction;
@@ -24,16 +26,18 @@ public class Generate
 
     HashSet<Integer> writeProhibit = new HashSet<>();//不可以做运算写入的寄存器（系统用和jr/jalr用的）
     HashSet<Integer> hasVal = new HashSet<>();//有值的寄存器
-    List<Integer> addrList = new ArrayList<>();
-    List<String> labelList = new ArrayList<>();
+    List<Integer> addrList = new ArrayList<>();//有值的存储器地址
+    List<String> labelList = new ArrayList<>();//存储分支指令的出现顺序
+
 
     List<String> ans = new ArrayList<>();//输出的字符串数组
 
-    public Generate(int instructionNum, Set<String> R, Set<String> I, Set<String> J)
+    public Generate(int instructionNum, Set<String> R, Set<String> I, Set<String> branch, Set<String> J)
     {
         this.setInstructionNum(instructionNum);
         this.setR(R);
         this.setI(I);
+        this.setBranch(branch);
         this.setJ(J);
         this.initWriteProhibit();
     }
@@ -42,12 +46,153 @@ public class Generate
     {
         writeProhibit.add(0);
         writeProhibit.add(1);
+        writeProhibit.add(2);
+        writeProhibit.add(3);
         writeProhibit.add(26);
         writeProhibit.add(27);
         writeProhibit.add(28);
         writeProhibit.add(29);
         writeProhibit.add(30);
         writeProhibit.add(31);
+    }
+
+    //grf与dm赋初值
+    private void initReg()
+    {
+        //寄存器赋初始值
+        this.hasVal.add(0);
+        this.hasVal.add(2);
+        this.hasVal.add(3);
+        //$v0($2)值固定为2^32-1
+        this.ans.add("lui $v0, 0x7fff");
+        this.ans.add("ori $v0, $0, 0xffff");
+        //$v1($3)值固定为-2^32
+        this.ans.add("lui $v1, 0xffff");
+        this.ans.add("ori $v1, $0, 0xffff");
+        //随机几个寄存器赋值
+        for (int i = 0; i < 3; i++)
+        {
+            iInstruction = new Ori(writeProhibit);
+            this.ans.add(iInstruction.createMIPSText());
+            //增加有值的寄存器
+            hasVal.add(iInstruction.getRt());
+            this.cnt++;
+        }
+        //存储部分值（方便后续取指令测试）
+        for (int i = 0; i < 3; i++)
+        {
+            this.iInstruction = new Sw(this.hasVal);
+            this.ans.add(iInstruction.createMIPSText());
+            this.addrList.add(Integer.valueOf(iInstruction.getImm16()));
+            this.cnt++;
+        }
+    }
+
+    //创建最后的label部分
+    private void createLabel()
+    {
+        //以下完成label块
+        int size = this.labelList.size() * 2;//label块的数目
+        for (int i = 0; i < size; i++)
+        {
+            //先输入label 'i' :
+            String text = "label" + i + ":";
+            ans.add(text);
+
+            //再生成固定数目的随机非分支跳转指令
+            createRandomBlock();
+
+            //最后根据跳转过来的指令类型决定后续跳转位置
+            //不同分支跳转指令不同处理
+            String instr = this.labelList.get(i / 2);
+            if (instr.equals("jal"))
+            {
+                //一定概率执行jalr（如果要测试）
+                Random random = new Random();
+                boolean jalr = random.nextBoolean();
+                if (this.R.contains("jalr") && jalr)
+                {
+                    //未实现
+                    System.out.println("未实现");
+                } else
+                {
+                    //可以考虑ori给其他寄存器然后jr那个
+                    //ori
+                    iInstruction = new Ori(this.writeProhibit, 31);
+                    ans.add(iInstruction.createMIPSText());
+                    //jr
+                    rInstruction = new Jr(iInstruction.getRt());
+                    ans.add(rInstruction.createMIPSText());
+                }
+            } else if (instr.equals("jalr"))
+            {
+                System.out.println("未实现");
+            } else if (this.branch.contains(instr))
+            {
+                //beq，bne，bgez这种
+                //根据模板实行统一的跳转方式（进3退1）
+                String label;
+                if (i % 2 == 0)
+                {
+                    //label+3
+                    label = "label" + (i + 3);
+                } else
+                {
+                    //label-1
+                    label = "label" + (i - 1);
+                }
+
+                switch (instr)
+                {
+                    case "beq":
+                        iInstruction = new Beq(label);
+                        break;
+                    case "bne":
+                        break;
+                }
+
+                ans.add(iInstruction.createMIPSText());
+            } else
+            {
+                System.out.println(" Σ( ° △ °|||)︴  又在分支跳转里放奇怪的指令了");
+                System.out.println("错误指令：" + instr);
+                ans.add("j end");
+            }
+        }
+        //最后必须有的label
+        ans.add("label" + (size + 1) + ":");
+    }
+
+    //随机创建label块内的指令
+    private void createRandomBlock()
+    {
+        for (int i = 0; i < this.labelBlockSize; i++)
+        {
+            boolean add = false;
+            int seed = new Random().nextInt();
+            Random random = new Random(seed);
+            int mode = random.nextInt(2);
+            int index;
+            if (mode == 0)
+            {
+                //R指令
+                List<String> RList = new ArrayList<>(R);
+                while (!add)
+                {
+                    index = random.nextInt(RList.size());
+                    add = addR(index, RList);
+                }
+            } else
+            {
+                //I指令
+                List<String> Ilist = new ArrayList<>(I);
+                while (!add)
+                {
+                    index = random.nextInt(Ilist.size());
+                    add = addI(index, Ilist);
+                }
+            }
+        }
     }
 
     public int getInstructionNum()
@@ -85,37 +230,26 @@ public class Generate
         I = i;
     }
 
+    public void setBranch(Set<String> branch)
+    {
+        this.branch = branch;
+    }
+
     public void setJ(Set<String> j)
     {
         this.J = j;
     }
 
-    public void Run()
+    //程序运行
+    public void run()
     {
         int RNum = (instructionNum - 6) / 3;//R指令数目
-        int Jnum = 2;//J指令数目
+        int Jnum = 2;//J型（jal）指令数目
         int INum = instructionNum - 6 - RNum - Jnum;//I指令数目
+        int BranchNum = 5;
 
-        //寄存器赋初始值
-        for (int i = 0; i < 3; i++)
-        {
-            iInstruction = new Ori(writeProhibit);
-            ans.add(iInstruction.createMIPSText());
-            //增加有值的寄存器
-            hasVal.add(iInstruction.getRt());
-
-            cnt++;
-        }
-        //存储部分值（方便后续存取指令测试）
-        for (int i = 0; i < 3; i++)
-        {
-            this.iInstruction = new Sw(this.hasVal);
-            ans.add(iInstruction.createMIPSText());
-            this.addrList.add(Integer.valueOf(iInstruction.getImm16()));
-
-            cnt++;
-        }
         //以上是寄存器与存储器的初始化部分
+        this.initReg();
 
         //R指令
         for (int i = 0; i < RNum; i++)
@@ -135,7 +269,7 @@ public class Generate
             cnt++;
         }
 
-        //J指令
+        //J指令（jal）
         for (int i = 0; i < Jnum; i++)
         {
             jInstruction = new Jal(this.labelList);
@@ -143,7 +277,7 @@ public class Generate
             this.labelList.add("jal");
         }
 
-        //I指令
+        //I指令（无跳转的）
         for (int i = 0; i < INum; i++)
         {
             boolean add = false;
@@ -161,61 +295,40 @@ public class Generate
             cnt++;
         }
 
+        //I指令（分支跳转的）
+        for (int i = 0; i < BranchNum; i++)
+        {
+            boolean add = false;
+            int index;
+            int seed = new Random().nextInt();
+            Random random = new Random(seed);
+            List<String> branchList = new ArrayList<>(this.branch);
+
+            while (!add)
+            {
+                index = random.nextInt(branchList.size());
+                add = addBranch(index, branchList);
+            }
+
+            cnt++;
+        }
+
         if (this.J.contains("j"))
         {
-            jInstruction = new J(this.labelList);
+            this.jInstruction = new J(this.labelList);
             this.ans.add(jInstruction.createMIPSText());
             this.labelList.add("j");
         }
 
-
         //至此所有不涉及跳转分支的都应该运行完了，会通过end标签直接指向程序终止（通过）
-        ans.add("beq $0, $0, end");
-        //以下完成跳转指令，保证每条这样的指令都只会占两条，比如beq和j会是ori+beq，jal是ori+jr
-        //保证beq运行完直接到end（使用j指令），jal会对应jr
-        for (int i = 0; i < this.labelList.size(); i++)
-        {
-            //先输入label 'i' :
-            String text = "label" + i + ":";
-            ans.add(text);
-            //不同分支跳转指令不同处理
-            String instr = this.labelList.get(i);
-            switch (instr)
-            {
-                case "beq":
-                    iInstruction = new Ori(this.writeProhibit);
-                    ans.add(iInstruction.createMIPSText());
-                    if (this.J.contains("j"))
-                    {
-                        ans.add("j end");
-                    } else
-                    {
-                        ans.add("beq $0, $0, end");
-                    }
-                    break;
-                case "j":
-                    iInstruction = new Ori(this.writeProhibit);
-                    ans.add(iInstruction.createMIPSText());
-                    ans.add("beq $0, $0, end");
-                    break;
-                case "jal":
-                    iInstruction = new Ori(this.writeProhibit);
-                    ans.add(iInstruction.createMIPSText());
-                    ans.add("jr $ra");
-                    break;
-                case "jalr":
-                    break;
-                default:
-                    System.out.println(" Σ( ° △ °|||)︴  又在分支跳转里放奇怪的指令了");
-                    System.out.println("错误指令：" + instr);
-                    ans.add("j end");
-                    break;
-            }
-        }
+        this.ans.add("beq $0, $0, end");
+
+        //创建最后的label部分
+        this.createLabel();
 
         //保证程序运行结束
-        ans.add("end:");
-        update(ans);
+        this.ans.add("end:");
+        this.update(this.ans);
     }
 
     public boolean addR(int index, List<String> RList)
@@ -245,16 +358,8 @@ public class Generate
                 this.hasVal.add(rInstruction.getRd());
                 break;
             case "jr":
-                this.rInstruction = new Jr();
-                newInstr = this.rInstruction.createMIPSText();
-                if (newInstr == null)
-                {
-                    return false;
-                }
-                ans.add(newInstr);
-                break;
             case "jalr":
-                break;
+                return false;
             default:
                 System.out.println("未知指令" + instruction);
                 return false;
@@ -263,6 +368,7 @@ public class Generate
         return true;
     }
 
+    //增加非分支的I指令
     public boolean addI(int index, List<String> IList)
     {
         String instruction = IList.get(index);
@@ -309,21 +415,39 @@ public class Generate
                 ans.add(newInstr);
                 this.addrList.add(Integer.valueOf(iInstruction.getImm16()));
                 break;
-            case "beq":
-                this.iInstruction = new Beq(instructionNum * 4, cnt * 4, this.labelList);
-                newInstr = iInstruction.createMIPSText();
-                if (newInstr == null)
-                {
-                    return false;
-                }
-                ans.add(newInstr);
-                this.labelList.add("beq");
-                break;
             default:
                 System.out.println("未知指令" + instruction);
                 return false;
         }
         //System.out.println("添加 " + instruction + " 指令成功");
+        return true;
+    }
+
+    //随机增加I指令中产生分支的指令
+    public boolean addBranch(int index, List<String> branchList)
+    {
+        String instruction = branchList.get(index);
+        String newInstr;
+        switch (instruction)
+        {
+            case "beq":
+                this.iInstruction = new Beq(instructionNum * 4, cnt * 4, this.labelList);
+                break;
+            case "bne":
+                break;
+            default:
+                System.out.println("未知指令" + instruction);
+                return false;
+        }
+
+        newInstr = iInstruction.createMIPSText();
+        if (newInstr == null)
+        {
+            return false;
+        }
+        ans.add(newInstr);
+        this.labelList.add(instruction);
+
         return true;
     }
 

@@ -3,17 +3,16 @@ package Instruction.I;
 import Instruction.InstructionDic;
 import Instruction.RegDic;
 
-import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
-public class Sw extends IInstruction
+public class Sb extends IInstruction
 {
     private final Set<Integer> hasVal;
 
-    public Sw(Set<Integer> hasVal)
+    public Sb(Set<Integer> hasVal)
     {
-        this.setOp(InstructionDic.SW);
+        this.setOp(InstructionDic.SB);
         this.hasVal = hasVal;
     }
 
@@ -50,7 +49,7 @@ public class Sw extends IInstruction
     {
         int seed = new Random().nextInt();
         Random random = new Random(seed);
-        int imm = random.nextInt(50) * 4;
+        int imm = random.nextInt(400);
         return Integer.toString(imm);
     }
 
@@ -64,8 +63,8 @@ public class Sw extends IInstruction
     public String createMIPSText()
     {
         super.createMIPSText();
-        //sw rt, imm16(rs)  固定存储地址为50个字,rs=0,要求GPR[rt]!=0
-        return "sw $" + RegDic.RegName.get(this.getRt()) +
+        //sb rt, imm16(rs)  固定存储地址为50个字,rs=0,要求GPR[rt]!=0
+        return "sb $" + RegDic.RegName.get(this.getRt()) +
                 ", " +
                 this.getImm16() +
                 "($" +
