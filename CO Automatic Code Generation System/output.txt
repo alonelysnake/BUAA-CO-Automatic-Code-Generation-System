@@ -1,116 +1,106 @@
 lui $v0, 0x7fff
-ori $v0, $0, 0xffff
+ori $v0, $v0, 0xffff
 lui $v1, 0xffff
-ori $v1, $0, 0xffff
-ori $s4, $a2, 0xb321
-ori $t3, $t0, 0x9c7
-ori $a2, $t4, 0x3674
-sw $v1, 120($zero)
-sw $zero, 68($zero)
-sw $v1, 196($zero)
-subu $t6, $v0, $a2
-subu $t8, $s4, $v1
-subu $s4, $v0, $t6
-addu $s7, $s4, $t3
-subu $t3, $t6, $t3
-addu $t3, $s4, $t3
-addu $t0, $v1, $t6
-addu $t8, $v1, $zero
+ori $v1, $v1, 0xffff
+ori $t2, $s3, 0xe588
+ori $t1, $t5, 0x2f1b
+ori $a1, $v0, 0x4643
+sw $t2, 156($zero)
+sw $zero, 44($zero)
+sw $a1, 124($zero)
+subu $s4, $zero, $v0
+addu $t8, $a1, $zero
+addu $s7, $t8, $s4
+subu $t1, $s7, $s4
+subu $t2, $zero, $zero
+subu $t6, $a1, $t1
+subu $t7, $t2, $s7
+addu $a3, $t7, $t6
 jal label0
+nop
 jal label2
-lui $a3, 0x86d5
-ori $t5, $v1, 0xea58
-ori $t1, $at, 0x68ab
-ori $s0, $a1, 0x790e
-ori $s3, $ra, 0x781b
-lui $s6, 0x6809
-lui $t5, 0xd938
-lui $t3, 0xab48
-sw $s0, 188($zero)
-lw $t7, 120, ($zero)
-sw $v1, 160($zero)
-lui $t6, 0xb2c3
-lui $t6, 0x6024
-ori $s6, $at, 0xc9ff
-beq $k0, $s4, label5
-beq $zero, $at, label7
-beq $s0, $s0, label9
-beq $s6, $t0, label11
-beq $s6, $s6, label13
+nop
+ori $s7, $a0, 0xbff3
+ori $s3, $k0, 0xe2bd
+lui $s5, 0xaa53
+lw $s7, 124, ($zero)
+sw $zero, 52($zero)
+ori $s2, $s2, 0x7a54
+lui $s4, 0x4a98
+ori $t5, $a3, 0xf409
+ori $t4, $v0, 0xadc5
+lui $t4, 0x576f
+sw $v1, 132($zero)
+sw $v0, 164($zero)
+ori $s5, $s2, 0xf9c7
+ori $a3, $s1, 0x9178
+beq $zero, $t0, label5
+subu $t0, $t7, $t5
+beq $s6, $k1, label7
+subu $a3, $s5, $t2
+j label8
+addu $s3, $t4, $a1
 beq $0, $0, end
+addu $s6, $t0, $t0
 label0:
-lui $t4, 0x6fd3
-ori $s2, $fp, 0xc9b4
-addu $a2, $t4, $v1
-ori $s0, $ra, 0x0
-jr $s0
+lui $t0, 0x6c02
+lw $t4, 156, ($zero)
+lui $a1, 0xfd6f
+ori $t2, $ra, 0x0
+jr $t2
 label1:
-lui $t6, 0x8b0a
-addu $t1, $s7, $t8
-lui $a2, 0x846
-ori $a2, $ra, 0x0
-jr $a2
+sw $s3, 48($zero)
+ori $t8, $a2, 0xa74c
+lw $a2, 164, ($zero)
+ori $t5, $ra, 0x0
+jr $t5
 label2:
-subu $s0, $s0, $a3
-lw $s5, 160, ($zero)
-ori $s7, $s5, 0x67a3
+addu $s1, $s2, $s2
+addu $s4, $t1, $s1
+lw $s3, 156, ($zero)
 ori $a3, $ra, 0x0
 jr $a3
 label3:
-subu $t1, $s4, $t0
-addu $a0, $s3, $t7
-addu $s0, $s0, $s7
-ori $s4, $ra, 0x0
-jr $s4
+addu $t9, $t6, $a1
+sw $a2, 188($zero)
+subu $t4, $s6, $a3
+ori $a0, $ra, 0x0
+jr $a0
 label4:
-subu $s4, $t3, $v0
-addu $t6, $s7, $s7
-lui $a1, 0x1e64
-beq $zero, $zero, label7
+lui $t9, 0x8ed8
+subu $t5, $t2, $a3
+addu $s5, $s7, $zero
+beq $s3, $s3, label7
+subu $t7, $a2, $t8
 label5:
-addu $a3, $v1, $s2
-sw $s4, 44($zero)
-addu $a2, $t0, $s5
-beq $t0, $t0, label4
+subu $s0, $v1, $s3
+sw $zero, 64($zero)
+lw $t6, 156, ($zero)
+beq $t3, $t3, label4
+subu $s7, $s3, $s5
 label6:
-subu $t0, $t5, $s3
-sw $s7, 84($zero)
-sw $s3, 148($zero)
-beq $v0, $v0, label9
+subu $t8, $s5, $s6
+ori $s5, $s6, 0xbb37
+lui $s1, 0xc988
+beq $s3, $s3, label9
+addu $s0, $s4, $s3
 label7:
-sw $s3, 80($zero)
-lui $s5, 0xf9ff
-lui $t6, 0x9469
-beq $s7, $s7, label6
+ori $s3, $t2, 0x330c
+subu $t8, $a1, $t4
+lui $t4, 0x6b49
+beq $t5, $t5, label6
+addu $t6, $a3, $v1
 label8:
-sw $t8, 4($zero)
-subu $t8, $s0, $t1
-addu $t2, $v0, $s2
-beq $a0, $a0, label11
+sw $v0, 28($zero)
+lui $s1, 0xa38a
+addu $s6, $a2, $t2
+j label11
+subu $s6, $t6, $s5
 label9:
-ori $t6, $s1, 0xd895
-lui $t5, 0x14cb
-sw $t4, 0($zero)
-beq $t9, $t9, label8
-label10:
-ori $s2, $s7, 0x314e
-lw $s5, 196, ($zero)
-lui $a0, 0x5f65
-beq $s0, $s0, label13
+addu $s7, $a2, $v0
+lui $t9, 0x3285
+addu $a3, $v0, $s2
+j label8
+addu $a3, $s6, $s3
 label11:
-lui $s3, 0xccf0
-ori $s6, $v0, 0x7e84
-sw $t8, 16($zero)
-beq $a2, $a2, label10
-label12:
-lui $s2, 0xeb20
-addu $t3, $t5, $a3
-lui $s0, 0x893c
-beq $s5, $s5, label15
-label13:
-subu $t8, $a3, $t7
-subu $t4, $t7, $s7
-lw $t6, 80, ($zero)
-beq $t2, $t2, label12
-label15:
 end:

@@ -12,12 +12,14 @@ public class Jal extends JInstruction
         this.setOp(InstructionDic.JAL);
         this.setLabelList(labelList);
         this.setNowAddr(nowAddr);
+        this.setValue();
     }
 
     public Jal(List<String> labelList)
     {
         this.setOp(InstructionDic.JAL);
         this.setLabelList(labelList);
+        this.setValue();
     }
 
     @Override
@@ -35,7 +37,6 @@ public class Jal extends JInstruction
     @Override
     public String createMIPSText()
     {
-        super.createMIPSText();
         //jal label
         return "jal " + this.getLabel();
     }

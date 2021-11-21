@@ -28,6 +28,20 @@ public class InstructionDic
     final static public String LUI = "001111";
     final static public String BEQ = "000100";
     final static public String BNE = "000101";
+    final static public String NOR = "100111";
+    final static public String SLTI = "001010";
+    final static public String SRA = "000011";
+    final static public String SRAV = "000111";
+    final static public String SRL = "000010";
+    final static public String SRLV = "000110";
+    final static public String XOR = "100110";
+    final static public String XORI = "001110";
+    final static public String ANDI = "001100";
+    final static public String ADDI = "001000";
+    // final static public String BLTZ;
+    // final static public String BGEZ;
+    // final static public String BLEZ;
+    // final static public String BGTZ;
 
     final static public Set<String> RMODE = new HashSet<>();
     final static public Set<String> IMODE = new HashSet<>();
@@ -40,16 +54,24 @@ public class InstructionDic
 
         RMODE.add("addu");
         RMODE.add("subu");
+        RMODE.add("or");
+        RMODE.add("sll");
+        RMODE.add("sllv");
+        RMODE.add("slt");
         RMODE.add("jr");
         //RMODE.add("jalr");
 
         IMODE.add("ori");
         IMODE.add("lui");
         IMODE.add("lw");
+        // IMODE.add("lh");
+        // IMODE.add("lb");
         IMODE.add("sw");
-        IMODE.add("beq");
+        // IMODE.add("sh");
+        // IMODE.add("sb");
 
         BRANCH.add("beq");
+        //BRANCH.add("bne");
 
         JMODE.add("j");
         JMODE.add("jal");

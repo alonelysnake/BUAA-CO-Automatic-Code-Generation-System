@@ -6,11 +6,11 @@ import Instruction.RegDic;
 import java.util.Random;
 import java.util.Set;
 
-public class Sll extends RCalInstruction
+public class Sra extends RCalInstruction
 {
-    public Sll(Set<Integer> writeProhibit, Set<Integer> hasVal)
+    public Sra(Set<Integer> writeProhibit, Set<Integer> hasVal)
     {
-        this.setFunc(InstructionDic.SLL);
+        this.setFunc(InstructionDic.SRA);
         this.setWriteProhibit(writeProhibit);
         this.setHasVal(hasVal);
         this.setValue();
@@ -35,8 +35,8 @@ public class Sll extends RCalInstruction
     @Override
     public String createMIPSText()
     {
-        //sll rd, rt, shamt
-        return "sll $" + RegDic.RegName.get(this.getRd()) +
+        //sra rd, rt, shamt
+        return "sra $" + RegDic.RegName.get(this.getRd()) +
                 ", $" +
                 RegDic.RegName.get(this.getRt()) +
                 ", " +

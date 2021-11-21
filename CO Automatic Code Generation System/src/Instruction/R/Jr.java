@@ -3,15 +3,21 @@ package Instruction.R;
 import Instruction.InstructionDic;
 import Instruction.RegDic;
 
-import java.util.Random;
+import java.util.Set;
 
 public class Jr extends RInstruction
 {
     //先固定jr返回值为31
-    public Jr(int rsNum)
+    public Jr(int rsNum, Set<Integer> writeProhibit)
     {
         this.setFunc(InstructionDic.JR);
+        this.setWriteProhibit(writeProhibit);
         this.setRs(rsNum);
+        this.setValue();
+        if(rsNum!=31)
+        {
+            writeProhibit.remove(rsNum);//jr之后就可以使用了
+        }
     }
 
     @Override
@@ -41,7 +47,6 @@ public class Jr extends RInstruction
     @Override
     public String createMIPSText()
     {
-        super.createMIPSText();
         //jr rs
         return "jr $" + RegDic.RegName.get(this.getRs());
     }

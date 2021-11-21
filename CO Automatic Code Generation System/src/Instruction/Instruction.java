@@ -3,18 +3,12 @@ package Instruction;
 abstract public class Instruction
 {
     private String op;
-    private String func;
     private String machineCode;
     private String text;
 
     public String getOp()
     {
         return op;
-    }
-
-    public String getFunc()
-    {
-        return func;
     }
 
     public String getMachineCode()
@@ -25,11 +19,6 @@ abstract public class Instruction
     public String getText()
     {
         return text;
-    }
-
-    public void setFunc(String func)
-    {
-        this.func = func;
     }
 
     public void setOp(String op)
@@ -50,4 +39,7 @@ abstract public class Instruction
     abstract public String createMachineCode();
 
     abstract public String createMIPSText();
+
+    //设置各个变量的值
+    abstract protected void setValue();
 }

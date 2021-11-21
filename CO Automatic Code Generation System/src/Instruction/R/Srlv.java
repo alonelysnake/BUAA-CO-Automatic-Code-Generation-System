@@ -5,11 +5,11 @@ import Instruction.RegDic;
 
 import java.util.Set;
 
-public class Subu extends RCalInstruction
+public class Srlv extends RCalInstruction
 {
-    public Subu(Set<Integer> writeProhibit, Set<Integer> hasVal)
+    public Srlv(Set<Integer> writeProhibit, Set<Integer> hasVal)
     {
-        this.setFunc(InstructionDic.SUBU);
+        this.setFunc(InstructionDic.SRLV);
         this.setWriteProhibit(writeProhibit);
         this.setHasVal(hasVal);
         this.setValue();
@@ -19,8 +19,8 @@ public class Subu extends RCalInstruction
     @Override
     public String createMIPSText()
     {
-        //subu rd, rs, rt
-        return "subu $" + RegDic.RegName.get(this.getRd()) +
+        //srlv rd, rs, rt
+        return "srlv $" + RegDic.RegName.get(this.getRd()) +
                 ", $" +
                 RegDic.RegName.get(this.getRs()) +
                 ", $" +

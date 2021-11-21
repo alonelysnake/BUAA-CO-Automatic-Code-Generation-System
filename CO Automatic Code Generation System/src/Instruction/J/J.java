@@ -10,6 +10,19 @@ public class J extends JInstruction
     {
         this.setOp(InstructionDic.J);
         this.setLabelList(labelList);
+        this.setValue();
+    }
+
+    public J(String label)
+    {
+        this.setOp(InstructionDic.J);
+        this.setValue(label);
+    }
+
+    protected void setValue(String label)
+    {
+        this.setLabel(label);
+        this.setText(this.createMIPSText());
     }
 
     @Override
@@ -27,7 +40,6 @@ public class J extends JInstruction
     @Override
     public String createMIPSText()
     {
-        super.createMIPSText();
         //j label
         return "j " + this.getLabel();
     }

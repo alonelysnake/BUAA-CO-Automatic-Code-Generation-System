@@ -1,3 +1,4 @@
+import Generate.Generate;
 import Instruction.InstructionDic;
 
 import java.util.HashSet;
@@ -27,7 +28,7 @@ public class UI
         System.out.println("目前支持指令：");
         System.out.println("R:addu    subu    jr");
         System.out.println("I:ori    lui    sw    lw    beq");
-        System.out.println("J:j(p4不要求所以暂时禁用)    jal");
+        System.out.println("J:j    jal");
     }
 
     public void chooseInstruction()
@@ -78,7 +79,7 @@ public class UI
         } else
         {
             //默认
-            //J.add("j");
+            J.add("j");
             J.add("jal");
         }
 

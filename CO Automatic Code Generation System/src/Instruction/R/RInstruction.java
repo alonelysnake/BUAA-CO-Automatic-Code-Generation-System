@@ -11,6 +11,7 @@ abstract public class RInstruction extends Instruction
     private int rt;
     private int rd;
     private int shamt;
+    private String func;
     private Set<Integer> writeProhibit;//禁止写入的寄存器编号
     private Set<Integer> hasVal;//已经有值的寄存器编号（适合用来运算）
 
@@ -37,6 +38,11 @@ abstract public class RInstruction extends Instruction
     public int getShamt()
     {
         return shamt;
+    }
+
+    public String getFunc()
+    {
+        return func;
     }
 
     public Set<Integer> getHasVal()
@@ -69,6 +75,11 @@ abstract public class RInstruction extends Instruction
         this.shamt = shamt;
     }
 
+    public void setFunc(String func)
+    {
+        this.func = func;
+    }
+
     public void setHasVal(Set<Integer> hasVal)
     {
         this.hasVal = hasVal;
@@ -92,21 +103,20 @@ abstract public class RInstruction extends Instruction
     abstract protected int chooseShamt();
 
     @Override
+    public void setValue()
+    {
+        this.setRd(this.chooseRd());
+        this.setRs(this.chooseRs());
+        this.setRt(this.chooseRt());
+        this.setShamt(this.chooseShamt());
+        this.setText(this.createMIPSText());
+    }
+
+    @Override
     public String createMachineCode()
     {
         String code;
-        code=this.getOp()+ this.getRs() +this.getRt()+this.getRd()+this.getShamt()+this.getFunc();
+        code = this.getOp() + this.getRs() + this.getRt() + this.getRd() + this.getShamt() + this.getFunc();
         return code;
-    }
-
-    //不会返回具体值，而是把各个字段设置好
-    @Override
-    public String createMIPSText()
-    {
-        this.setRs(chooseRs());
-        this.setRt(chooseRt());
-        this.setRd(chooseRd());
-        this.setShamt(chooseShamt());
-        return null;
     }
 }

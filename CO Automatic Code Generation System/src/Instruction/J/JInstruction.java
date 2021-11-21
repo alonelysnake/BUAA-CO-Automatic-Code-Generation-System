@@ -64,10 +64,9 @@ abstract public class JInstruction extends Instruction
     }
 
     @Override
-    public String createMIPSText()
+    protected void setValue()
     {
         this.setLabel(this.chooseLabel());
         this.setImm26(this.chooseImm26());
-        return null;
     }
 }
