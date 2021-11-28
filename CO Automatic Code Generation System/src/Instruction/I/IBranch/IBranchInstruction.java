@@ -25,7 +25,8 @@ abstract public class IBranchInstruction extends IInstruction
     {
         int seed = new Random().nextInt();
         Random random = new Random(seed);
-        return random.nextInt(28);
+        int index = random.nextInt(this.getConflictReg().size());
+        return this.getConflictReg().get(index);
     }
 
     //默认为一定概率一定跳转，一定概率极大可能不跳转。当前设置比例为1：1
@@ -66,11 +67,5 @@ abstract public class IBranchInstruction extends IInstruction
     }
 
     //知道label指向哪里时一定发生跳转
-    protected void setValue(String label)
-    {
-        this.setRs(this.chooseRs());
-        this.setRt(this.getRs());
-        this.setLabel(label);
-        this.setText(this.createMIPSText());
-    }
+    abstract protected void setValue(String label);
 }

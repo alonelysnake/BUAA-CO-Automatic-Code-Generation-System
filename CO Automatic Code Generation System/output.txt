@@ -2,105 +2,270 @@ lui $v0, 0x7fff
 ori $v0, $v0, 0xffff
 lui $v1, 0xffff
 ori $v1, $v1, 0xffff
-ori $t2, $s3, 0xe588
-ori $t1, $t5, 0x2f1b
-ori $a1, $v0, 0x4643
-sw $t2, 156($zero)
-sw $zero, 44($zero)
-sw $a1, 124($zero)
-subu $s4, $zero, $v0
-addu $t8, $a1, $zero
-addu $s7, $t8, $s4
-subu $t1, $s7, $s4
-subu $t2, $zero, $zero
-subu $t6, $a1, $t1
-subu $t7, $t2, $s7
-addu $a3, $t7, $t6
+ori $s7, $a0, 0xec47
+ori $s7, $at, 0x1851
+ori $s5, $t0, 0x2299
+sw $v0, 56($zero)
+sw $v1, 84($zero)
+sw $s5, 44($zero)
 jal label0
-nop
+sllv $s6, $s7, $s7
 jal label2
-nop
-ori $s7, $a0, 0xbff3
-ori $s3, $k0, 0xe2bd
-lui $s5, 0xaa53
-lw $s7, 124, ($zero)
-sw $zero, 52($zero)
-ori $s2, $s2, 0x7a54
-lui $s4, 0x4a98
-ori $t5, $a3, 0xf409
-ori $t4, $v0, 0xadc5
-lui $t4, 0x576f
-sw $v1, 132($zero)
-sw $v0, 164($zero)
-ori $s5, $s2, 0xf9c7
-ori $a3, $s1, 0x9178
-beq $zero, $t0, label5
-subu $t0, $t7, $t5
-beq $s6, $k1, label7
-subu $a3, $s5, $t2
-j label8
-addu $s3, $t4, $a1
+nor $t1, $s6, $s5
+slt $t0, $zero, $s5
+srav $s4, $t1, $t0
+srav $s4, $s4, $t1
+and $s6, $s5, $s4
+or $s6, $s4, $s6
+xor $t0, $s4, $s6
+and $t5, $t0, $s6
+srl $s1, $t5, 6
+xor $s0, $t0, $t5
+srl $t5, $s1, 1
+andi $t5, $v0, 0x2b33
+addi $t5, $t5, 0x3604
+andi $s0, $s0, 0x3b61
+addi $t3, $v1, 0x6bec
+andi $t1, $t3, 0x1dba
+xori $s7, $s0, 0x1c4
+slti $t9, $zero, 0x0
+xori $a3, $s7, 0x2e65
+xori $t1, $a3, 0x7d84
+andi $s4, $t9, 0x6be
+slti $t2, $t3, 0x1665
+xori $s5, $s4, 0xdb06
+addi $s3, $s5, 0x520a
+slti $s3, $v0, 0xe7d
+addi $t5, $s3, 0xab4d
+lh $t2, 56($zero)
+lh $a0, 46($zero)
+sh $s0, 36($zero)
+lb $s1, 38($zero)
+sb $s6, 102($zero)
+sb $t9, 34($zero)
+lh $a0, 46($zero)
+sh $a3, 112($zero)
+lh $t9, 36($zero)
+lh $a2, 56($zero)
+sll $s2, $s1, 2
+sh $s4, 4($zero)
+xori $a0, $a2, 0x833c
+lui $s6, 0xeb12
+ori $t6, $zero, 0x0
+lui $s7, 0xfd05
+ori $s1, $zero, 0x0
+mult $t6, $s1
+slt $s2, $zero, $t6
+xor $a0, $s7, $a2
+sllv $t8, $s1, $s2
+mthi $t8
+sh $a0, 140($zero)
+srl $t5, $t8, 4
+lui $t5, 0x811f
+ori $t7, $zero, 0x0
+lui $t9, 0x876b
+ori $t3, $zero, 0x0
+mult $t7, $t3
+srav $t4, $a3, $t7
+or $s5, $t3, $t4
+srlv $t9, $s5, $t3
+slt $t9, $zero, $t9
+mfhi $t8
+addi $s6, $s0, 0xffe9
+sh $a2, 8($zero)
+lui $s1, 0x8d4
+ori $t8, $zero, 0x0
+lui $s0, 0xc59c
+ori $a3, $zero, 0x0
+mult $t8, $a3
+srl $s4, $t5, 3
+mfhi $t6
+sll $t7, $t6, 3
+addi $a0, $t7, 0x6d63
+lui $t7, 0xdd65
+ori $t5, $zero, 0x0
+lui $s3, 0x3134
+ori $t7, $zero, 0x0
+div $t5, $t7
+srlv $t9, $s3, $t7
+srlv $s7, $s3, $a3
+mthi $t7
+srav $t7, $s7, $t7
+xori $a0, $s7, 0xea40
+lh $t1, 142($zero)
+lh $t9, 36($zero)
+sllv $a0, $t9, $a0
+lui $t0, 0x3843
+ori $t8, $zero, 0x0
+lui $a2, 0xe80c
+ori $a1, $zero, 0x0
+div $t8, $a1
+sllv $t3, $t8, $a2
+nor $t8, $a2, $t9
+xor $t4, $a1, $t3
+mthi $t3
+slti $s2, $a1, 0x14ae
+or $a0, $s2, $s3
+lui $t8, 0x9f8d
+ori $a2, $zero, 0x0
+lui $t3, 0xa0db
+ori $s4, $zero, 0x0
+mult $a2, $s4
+sra $t3, $a2, 3
+or $t8, $t3, $s4
+srlv $a0, $s7, $t3
+sra $s2, $s1, 4
+mfhi $s5
+sh $s2, 108($zero)
+slti $t4, $zero, 0x0
+lui $t9, 0x7542
+ori $t8, $zero, 0x0
+lui $t1, 0x678
+ori $t7, $zero, 0x0
+div $t8, $t7
+nor $t1, $t1, $t8
+sll $a2, $t1, 3
+xor $t0, $t7, $a2
+sllv $s2, $t9, $t0
+mthi $t4
+slt $s5, $zero, $s2
+addi $s5, $s5, 0xd887
+lb $a0, 111($zero)
+lui $s4, 0xb5b7
+ori $a3, $zero, 0x0
+lui $s2, 0xa293
+ori $s4, $zero, 0x0
+div $a3, $s4
+srav $t2, $s2, $s2
+mtlo $a0
+srl $t4, $s2, 5
+addi $s7, $t4, 0xc55c
+sh $v1, 174($zero)
+lui $t5, 0xa29f
+ori $s7, $zero, 0x0
+lui $t8, 0x50f7
+ori $t4, $zero, 0x0
+div $s7, $t4
+nor $t4, $t8, $t4
+nor $t8, $t4, $t8
+srl $t4, $t4, 1
+mtlo $t4
+sllv $t1, $t4, $t8
+sb $s1, 132($zero)
+andi $a1, $t1, 0x70d5
+lb $s4, 85($zero)
+andi $s1, $s4, 0x76d3
+lui $t1, 0x2bd0
+ori $t3, $zero, 0x0
+lui $t1, 0xe5c0
+ori $s5, $zero, 0x0
+div $t3, $s5
+srav $t0, $t3, $t3
+nor $s6, $t0, $s5
+srlv $t2, $t6, $t0
+sra $t4, $t0, 4
+slt $s6, $zero, $t2
+mtlo $t2
+or $s2, $s6, $t4
+bne $t4, $v0, label5
+slt $a0, $zero, $a2
+bgtz $a0, label7
+xor $s0, $a0, $s2
+bltz $s2, label9
+srav $t5, $s2, $s2
+bltz $a0, label11
+nor $s5, $a0, $s0
+j label12
+nor $t8, $t5, $s5
 beq $0, $0, end
-addu $s6, $t0, $t0
+and $t4, $t5, $s5
 label0:
-lui $t0, 0x6c02
-lw $t4, 156, ($zero)
-lui $a1, 0xfd6f
-ori $t2, $ra, 0x0
-jr $t2
+sll $t0, $t8, 1
+addi $t2, $t4, 0xde1
+xor $s3, $t0, $t4
+ori $a2, $ra, 0x0
+jr $a2
+or $s4, $t2, $s5
 label1:
-sw $s3, 48($zero)
-ori $t8, $a2, 0xa74c
-lw $a2, 164, ($zero)
+addi $s5, $s3, 0x77d4
+slti $a0, $s3, 0x3280
+addi $s2, $a0, 0x6531
+ori $t6, $ra, 0x0
+jr $t6
+or $s5, $t6, $a1
+label2:
+xor $t6, $s5, $t6
+andi $s1, $t6, 0x2109
+xor $s2, $s1, $s5
 ori $t5, $ra, 0x0
 jr $t5
-label2:
-addu $s1, $s2, $s2
-addu $s4, $t1, $s1
-lw $s3, 156, ($zero)
-ori $a3, $ra, 0x0
-jr $a3
+xor $t3, $s1, $t5
 label3:
-addu $t9, $t6, $a1
-sw $a2, 188($zero)
-subu $t4, $s6, $a3
-ori $a0, $ra, 0x0
-jr $a0
+srl $t8, $t9, 6
+xori $t9, $t3, 0x92ed
+addi $t7, $t8, 0xe8e
+ori $t0, $ra, 0x0
+jr $t0
+srl $t4, $t7, 4
 label4:
-lui $t9, 0x8ed8
-subu $t5, $t2, $a3
-addu $s5, $s7, $zero
-beq $s3, $s3, label7
-subu $t7, $a2, $t8
+nor $t6, $t4, $t0
+slt $t1, $zero, $t4
+andi $s4, $t4, 0x4b7f
+andi $s4, $t4, 0x4b7f
+srlv $s6, $s4, $t1
 label5:
-subu $s0, $v1, $s3
-sw $zero, 64($zero)
-lw $t6, 156, ($zero)
-beq $t3, $t3, label4
-subu $s7, $s3, $s5
+nor $t0, $t1, $s4
+slt $s0, $zero, $s7
+nor $t9, $t3, $t0
+andi $s4, $t4, 0x4b7f
+srl $s3, $s2, 2
 label6:
-subu $t8, $s5, $s6
-ori $s5, $s6, 0xbb37
-lui $s1, 0xc988
-beq $s3, $s3, label9
-addu $s0, $s4, $s3
+xori $s0, $s0, 0x2d9a
+andi $t0, $t9, 0xeb2b
+addi $t1, $s3, 0x6c1d
+addi $t1, $s3, 0x6c1d
+sra $s1, $t0, 2
 label7:
-ori $s3, $t2, 0x330c
-subu $t8, $a1, $t4
-lui $t4, 0x6b49
-beq $t5, $t5, label6
-addu $t6, $a3, $v1
+slt $t4, $zero, $t0
+or $s3, $t4, $t4
+srav $zero, $s3, $t2
+addi $t1, $s3, 0x6c1d
+slt $a3, $zero, $t4
 label8:
-sw $v0, 28($zero)
-lui $s1, 0xa38a
-addu $s6, $a2, $t2
-j label11
-subu $s6, $t6, $s5
+slti $s3, $v0, 0x79a4
+xori $a0, $s3, 0x4477
+sra $t4, $a3, 5
+xori $a0, $s3, 0x4477
+sllv $t3, $a0, $a0
 label9:
-addu $s7, $a2, $v0
-lui $t9, 0x3285
-addu $a3, $v0, $s2
-j label8
-addu $a3, $s6, $s3
+addi $t5, $a0, 0x7fd1
+or $t2, $t5, $t3
+andi $a0, $t3, 0x52eb
+andi $a0, $t3, 0x52eb
+xor $t5, $t5, $t2
+label10:
+srl $s3, $a0, 7
+sllv $a0, $t5, $a0
+srav $s1, $t5, $s3
+andi $a0, $t3, 0x52eb
+and $t3, $a0, $zero
 label11:
+or $s6, $a0, $s1
+xori $t9, $s1, 0x66c3
+xori $s6, $t9, 0x5b6e
+xori $s6, $t9, 0x5b6e
+and $s5, $s6, $t9
+label12:
+slti $t7, $v0, 0x9ec
+addi $s4, $s5, 0xd754
+xori $t3, $t7, 0x23d2
+j label15
+sra $s2, $t7, 3
+label13:
+sra $zero, $s6, 6
+xori $t7, $s4, 0x8556
+srl $a3, $t3, 7
+j label12
+sllv $t2, $t5, $s2
+label15:
 end:

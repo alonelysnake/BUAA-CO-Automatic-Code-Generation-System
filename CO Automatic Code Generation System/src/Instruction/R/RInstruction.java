@@ -15,11 +15,6 @@ abstract public class RInstruction extends Instruction
     private Set<Integer> writeProhibit;//禁止写入的寄存器编号
     private Set<Integer> hasVal;//已经有值的寄存器编号（适合用来运算）
 
-    public RInstruction()
-    {
-        this.setOp("000000");
-    }
-
     public int getRs()
     {
         return rs;

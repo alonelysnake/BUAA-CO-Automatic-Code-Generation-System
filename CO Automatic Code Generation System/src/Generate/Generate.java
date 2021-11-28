@@ -1,14 +1,10 @@
 package Generate;
 
 import Instruction.I.*;
-import Instruction.I.IBranch.Beq;
-import Instruction.I.IBranch.Bne;
-import Instruction.I.ICal.Lui;
-import Instruction.I.ICal.Ori;
+import Instruction.I.IBranch.*;
+import Instruction.I.ICal.*;
 import Instruction.I.ILS.*;
-import Instruction.J.J;
-import Instruction.J.JInstruction;
-import Instruction.J.Jal;
+import Instruction.J.*;
 import Instruction.R.*;
 import Exception.UnknownInstrException;
 
@@ -19,12 +15,13 @@ public class Generate
     private int instructionNum;//指令条数
     private int cnt = 0;//当前指令index
     final private int labelBlockSize = 3;//label块大小
-    private Set<String> R;//选择的R指令
-    private Set<String> I;//选择的I指令（不分支）
-    private Set<String> JR;//jalr,jr
+    private Set<String> RCal;//选择的R指令
+    private Set<String> ICal;//选择的I指令（不分支）
+    private Set<String> RJ;//jalr,jr
     private Set<String> LS;//load/save指令
     private Set<String> J;//实现jump的指令（j，jal，jalr，jr）
     private Set<String> branch;//I中的分支指令
+    private Set<String> MD;//乘除法相关
 
     final private int SEED = 114514;//神奇的随机数种子
     Random random = new Random(SEED);
@@ -33,35 +30,25 @@ public class Generate
     IInstruction iInstruction;
     JInstruction jInstruction;
 
-    HashSet<Integer> writeProhibit = new HashSet<>();//不可以做运算写入的寄存器（系统用和jr/jalr用的）
+    Set<Integer> writeProhibit;//不可以做运算写入的寄存器（系统用和jr/jalr用的）
     HashSet<Integer> hasVal = new HashSet<>();//有值的寄存器
     List<Integer> addrList = new ArrayList<>();//有值的存储器地址
     List<String> labelList = new ArrayList<>();//存储分支指令的出现顺序
+    LinkedList<Integer> conflictReg = new LinkedList<>();//记录会发生冲突的寄存器
 
     List<String> ans = new ArrayList<>();//输出的字符串数组
 
-    public Generate(int instructionNum, Set<String> R, Set<String> I, Set<String> branch, Set<String> J)
+    public Generate()
     {
-        this.setInstructionNum(instructionNum);
-        this.setR(R);
-        this.setI(I);
-        this.setBranch(branch);
-        this.setJ(J);
-        this.initWriteProhibit();
-    }
-
-    private void initWriteProhibit()
-    {
-        writeProhibit.add(0);
-        writeProhibit.add(1);
-        writeProhibit.add(2);
-        writeProhibit.add(3);
-        writeProhibit.add(26);
-        writeProhibit.add(27);
-        writeProhibit.add(28);
-        writeProhibit.add(29);
-        writeProhibit.add(30);
-        writeProhibit.add(31);
+        Init init = new Init();
+        this.RCal = init.RCal;
+        this.ICal = init.ICal;
+        this.branch = init.branch;
+        this.RJ = init.RJ;
+        this.J = init.J;
+        this.LS = init.LS;
+        this.MD = init.MD;
+        this.writeProhibit = init.writeProhibit;
     }
 
     //grf与dm赋初值
@@ -77,13 +64,14 @@ public class Generate
         //$v1($3)值固定为-2^32
         this.ans.add("lui $v1, 0xffff");
         this.ans.add("ori $v1, $v1, 0xffff");
+
         //随机几个寄存器赋值
         for (int i = 0; i < 3; i++)
         {
-            iInstruction = new Ori(writeProhibit, this.hasVal);
+            iInstruction = new Ori(writeProhibit, this.hasVal, this.conflictReg);
             this.ans.add(iInstruction.createMIPSText());
             //增加有值的寄存器
-            hasVal.add(iInstruction.getRt());
+            //hasVal.add(iInstruction.getRt());
             this.cnt++;
         }
         //存储部分值（方便后续取指令测试）
@@ -117,7 +105,7 @@ public class Generate
             {
                 //一定概率执行jalr（如果要测试）
                 boolean jalr = this.random.nextBoolean();
-                if (this.R.contains("jalr") && jalr)
+                if (this.RCal.contains("jalr") && jalr)
                 {
                     //未实现
                     System.out.println("未实现");
@@ -125,15 +113,20 @@ public class Generate
                 {
                     //可以考虑ori给其他寄存器然后jr那个
                     //ori
-                    iInstruction = new Ori(this.writeProhibit, 31, "0");
-                    ans.add(iInstruction.createMIPSText());
+                    iInstruction = new Ori(this.writeProhibit, this.conflictReg, 31, "0");
+                    ans.add(iInstruction.getText());
                     //jr
-                    rInstruction = new Jr(iInstruction.getRt(), this.writeProhibit);
-                    ans.add(rInstruction.createMIPSText());
+                    rInstruction = new Jr(iInstruction.getRt());
+                    ans.add(rInstruction.getText());
                 }
-            } else if (instr.equals("jalr"))
-            {
-                System.out.println("未实现");
+                //延迟槽
+                createDelaySlot();
+                //改变临时保存地址返回值的寄存器为可写入（必须保证上面这个延迟槽不会用到这个寄存器）
+                int rs = rInstruction.getRs();
+                if (rs != 1 && rs != 31)
+                {
+                    this.writeProhibit.remove(rs);
+                }
             } else
             {
                 //跳转的标签值
@@ -159,7 +152,7 @@ public class Generate
                     switch (instr)
                     {
                         case "beq":
-                            iInstruction = new Beq(label);
+                            iInstruction = new Beq(label, this.conflictReg);
                             break;
                         case "bne":
                             break;
@@ -174,7 +167,7 @@ public class Generate
                     ans.add(jInstruction.getText());
                 }
                 //延迟槽
-                addDelaySlot();
+                createDelaySlot();
             }
         }
 
@@ -193,7 +186,7 @@ public class Generate
                 //R指令
                 try
                 {
-                    addR();
+                    addRCal();
                 } catch (UnknownInstrException e)
                 {
                     e.printError();
@@ -203,7 +196,7 @@ public class Generate
                 //I指令
                 try
                 {
-                    addI();
+                    addICal();
                 } catch (UnknownInstrException e)
                 {
                     e.printError();
@@ -212,19 +205,67 @@ public class Generate
         }
     }
 
+    //添加延迟槽
+    private void createDelaySlot()
+    {
+        boolean add = false;
+        while (!add)
+        {
+            try
+            {
+                addRCal();
+                add = true;
+            } catch (UnknownInstrException e)
+            {
+                e.printError();
+            }
+        }
+    }
+
+    private void createMulDivBlock()
+    {
+        //创建时保证乘除法之前先给被乘数赋值，尤其是除数必须不为0！！！
+        int[] cal = new int[2];
+        for (int i = 0; i < 2; i++)
+        {
+            iInstruction = new Lui(writeProhibit, hasVal, conflictReg);
+            this.ans.add(iInstruction.getText());
+            int rs = iInstruction.getRs();
+            String imm = Integer.toHexString(random.nextInt(65535));
+            iInstruction = new Ori(writeProhibit, conflictReg, rs, imm);
+            this.ans.add(iInstruction.getText());
+            cal[i] = iInstruction.getRt();
+        }
+        try
+        {
+            //添加乘除法运算
+            addMD(cal[0], cal[1]);
+            //乘除槽
+            for (int i = random.nextInt(5); i >= 0; i--)
+            {
+                createDelaySlot();
+            }
+            //冲突指令
+            addMD(0, 0);
+        } catch (UnknownInstrException e)
+        {
+            e.printError();
+        }
+    }
+
     public int getInstructionNum()
     {
         return instructionNum;
     }
 
-    public Set<String> getR()
+    public Set<String> getRCal()
     {
-        return R;
+        return RCal;
     }
 
-    public Set<String> getI()
+    public Set<String> getICal()
     {
-        return I;
+        return ICal;
     }
 
     public Set<String> getJ()
@@ -237,14 +278,14 @@ public class Generate
         this.instructionNum = instructionNum;
     }
 
-    public void setR(Set<String> r)
+    public void setRCal(Set<String> RCal)
     {
-        R = r;
+        this.RCal = RCal;
     }
 
-    public void setI(Set<String> i)
+    public void setICal(Set<String> ICal)
     {
-        I = i;
+        this.ICal = ICal;
     }
 
     public void setBranch(Set<String> branch)
@@ -260,77 +301,42 @@ public class Generate
     //程序运行
     public void run()
     {
-        int RNum = (instructionNum - 6) / 3;//R指令数目
-        int Jnum = 2;//J型（jal）指令数目
-        int INum = instructionNum - 6 - RNum - Jnum;//I指令数目
-        int BranchNum = 5;
+        int RNum = 10;//R指令数目
+        int JNum = 2;//J型（jal）指令数目
+        int INum = 15;//I指令数目
+        int LSNum = 10;
+        int branchNum = 4;
+        int RINum = 15;//RI混合
 
         //以上是寄存器与存储器的初始化部分
         this.initReg();
 
-        //R指令
-        for (int i = 0; i < RNum; i++)
-        {
-            try
-            {
-                addR();
-                cnt++;
-            } catch (UnknownInstrException e)
-            {
-                e.printError();
-            }
-        }
-
         //J指令（jal）
-        for (int i = 0; i < Jnum; i++)
-        {
-            jInstruction = new Jal(this.labelList);
-            this.ans.add(jInstruction.createMIPSText());
-            this.labelList.add("jal");
-            this.ans.add(("nop"));//延迟槽
-        }
-
-        //I指令（无跳转的）
-        for (int i = 0; i < INum; i++)
-        {
-            try
-            {
-                addI();
-                cnt++;
-            } catch (UnknownInstrException e)
-            {
-                e.printError();
-            }
-        }
-
+        testJ(JNum);
+        //R指令内部测试
+        testRCal(RNum);
+        //I指令（无跳转的）内部测试
+        testICal(INum);
+        //LS内部测试
+        testLS(LSNum);
+        //随机生成RI序列
+        testRI(RINum);
         //I指令（分支跳转的）
-        for (int i = 0; i < 2; i++)
-        {
-            try
-            {
-                addBranch();
-                //延迟槽
-                addDelaySlot();
-            } catch (UnknownInstrException e)
-            {
-                e.printError();
-            }
-            cnt++;
-        }
-
+        testBranch(branchNum);
+        //结束
         if (this.J.contains("j"))
         {
             this.jInstruction = new J(this.labelList);
             this.ans.add(jInstruction.createMIPSText());
             this.labelList.add("j");
             //延迟槽
-            addDelaySlot();
+            createDelaySlot();
         }
 
-        //至此所有不涉及跳转分支的都应该运行完了，会通过end标签直接指向程序终止（通过）
+        //至此所有不涉及跳转分支的都应该运行完了，会保证通过end标签直接指向程序终止
         this.ans.add("beq $0, $0, end");
         //延迟槽
-        addDelaySlot();
+        createDelaySlot();
 
         //创建最后的label部分
         this.createLabel();
@@ -341,42 +347,12 @@ public class Generate
         fileGenerate.update();
     }
 
-    private void addR() throws UnknownInstrException
+    private void addRCal() throws UnknownInstrException
     {
-        int index;
-        List<String> RList = new ArrayList<>(R);
-
-        index = this.random.nextInt(RList.size());
-        String instruction = RList.get(index);
         String newInstr;
-        switch (instruction)
-        {
-            case "addu":
-                this.rInstruction = new Addu(this.writeProhibit, this.hasVal);
-                break;
-            case "subu":
-                this.rInstruction = new Subu(this.writeProhibit, this.hasVal);
-                break;
-            case "or":
-                this.rInstruction = new Or(this.writeProhibit, this.hasVal);
-                break;
-            case "sll":
-                this.rInstruction = new Sll(this.writeProhibit, this.hasVal);
-                break;
-            case "sllv":
-                this.rInstruction = new Sllv(this.writeProhibit, this.hasVal);
-                break;
-            case "slt":
-                this.rInstruction = new Slt(this.writeProhibit, this.hasVal);
-                break;
-            case "jr":
-            case "jalr":
-                return;
-            default:
-                throw new UnknownInstrException(instruction);
-        }
 
-        newInstr = this.rInstruction.createMIPSText();
+        this.rInstruction = InstrChoose.chooseRCal(RCal, this.writeProhibit, this.hasVal, this.conflictReg);
+        newInstr = this.rInstruction.getText();
         if (newInstr != null)
         {
             ans.add(newInstr);
@@ -385,47 +361,26 @@ public class Generate
     }
 
     //增加非分支的I指令
-    private void addI() throws UnknownInstrException
+    private void addICal() throws UnknownInstrException
     {
-        int index;
-        List<String> IList = new ArrayList<>(I);
-
-        index = this.random.nextInt(IList.size());
-        String instruction = IList.get(index);
         String newInstr;
-        switch (instruction)
-        {
-            case "lui":
-                this.iInstruction = new Lui(this.writeProhibit, this.hasVal);
-                break;
-            case "ori":
-                this.iInstruction = new Ori(this.writeProhibit, this.hasVal);
-                break;
-            case "lw":
-                this.iInstruction = new Lw(this.addrList, this.writeProhibit, this.hasVal);
-                break;
-            case "lh":
-                this.iInstruction = new Lh(this.addrList, this.writeProhibit, this.hasVal);
-                break;
-            case "lb":
-                this.iInstruction = new Lb(this.addrList, this.writeProhibit, this.hasVal);
-                break;
-            case "sw":
-                this.iInstruction = new Sw(this.hasVal, this.addrList);
-                break;
-            case "sh":
-                this.iInstruction = new Sh(this.hasVal, this.addrList);
-                break;
-            case "sb":
-                this.iInstruction = new Sb(this.hasVal, this.addrList);
-                break;
-            case "???":
-                return;
-            default:
-                throw new UnknownInstrException(instruction);
-        }
 
-        newInstr = iInstruction.createMIPSText();
+        this.iInstruction = InstrChoose.chooseICal(ICal, writeProhibit, hasVal, conflictReg);
+        newInstr = iInstruction.getText();
+        if (newInstr != null)
+        {
+            ans.add(newInstr);
+        }
+        //System.out.println("添加 " + instruction + " 指令成功");
+    }
+
+    private void addLS() throws UnknownInstrException
+    {
+
+        String newInstr;
+
+        iInstruction = InstrChoose.chooseLS(LS, addrList, writeProhibit, hasVal, conflictReg);
+        newInstr = iInstruction.getText();
         if (newInstr != null)
         {
             ans.add(newInstr);
@@ -436,47 +391,142 @@ public class Generate
     //随机增加I指令中产生分支的指令
     private void addBranch() throws UnknownInstrException
     {
-        int index;
-        List<String> branchList = new ArrayList<>(this.branch);
-
-        index = this.random.nextInt(branchList.size());
-        String instruction = branchList.get(index);
         String newInstr;
-        switch (instruction)
-        {
-            case "beq":
-                this.iInstruction = new Beq(this.labelList);
-                break;
-            case "bne":
-                this.iInstruction = new Bne(this.labelList);
-                break;
-            default:
-                System.out.println("未知指令" + instruction);
-                throw new UnknownInstrException(instruction);
-        }
 
-        newInstr = iInstruction.createMIPSText();
+        iInstruction = InstrChoose.chooseBranch(branch, labelList, conflictReg);
+        newInstr = iInstruction.getText();
         if (newInstr != null)
         {
             ans.add(newInstr);
-            this.labelList.add(instruction);
         }
     }
 
-    //添加延迟槽
-    private void addDelaySlot()
+    private void addMD(int rs, int rt) throws UnknownInstrException
     {
-        boolean add = false;
-        while (!add)
+        String newInstr;
+
+        rInstruction = InstrChoose.chooseMD(MD, rs, rt, writeProhibit, hasVal, conflictReg);
+        newInstr = rInstruction.getText();
+        if (newInstr != null)
+        {
+            ans.add(newInstr);
+        }
+    }
+
+    void testRCal(int RNum)
+    {
+        for (int i = 0; i < RNum; i++)
         {
             try
             {
-                addR();
-                add = true;
+                addRCal();
+                cnt++;
             } catch (UnknownInstrException e)
             {
                 e.printError();
             }
+        }
+    }
+
+    void testICal(int INum)
+    {
+        for (int i = 0; i < INum; i++)
+        {
+            try
+            {
+                addICal();
+                cnt++;
+            } catch (UnknownInstrException e)
+            {
+                e.printError();
+            }
+        }
+    }
+
+    void testLS(int LSNum)
+    {
+        for (int i = 0; i < LSNum; i++)
+        {
+            try
+            {
+                addLS();
+                cnt++;
+            } catch (UnknownInstrException e)
+            {
+                e.printError();
+            }
+        }
+    }
+
+    void testMD(int MDNum)
+    {
+        for (int i = 0; i < MDNum; i++)
+        {
+            createMulDivBlock();
+        }
+    }
+
+    void testJ(int JNum)
+    {
+        for (int i = 0; i < JNum; i++)
+        {
+            jInstruction = new Jal(this.labelList);
+            this.ans.add(jInstruction.createMIPSText());
+            this.labelList.add("jal");
+            this.createDelaySlot();//延迟槽
+        }
+    }
+
+    void testRI(int RINum)
+    {
+        for (int i = 0; i < RINum; i++)
+        {
+            int num = random.nextInt(2);
+            //随机顺序测试不同指令块间的阻塞
+            boolean[] block = {true, true, true, true};
+            int cnt = 4;
+            while (cnt > 0)
+            {
+                int index = random.nextInt(4);
+                while (!block[index])
+                {
+                    index = random.nextInt(4);
+                }
+                switch (index)
+                {
+                    case 0:
+                        testRCal(num);
+                        break;
+                    case 1:
+                        testICal(num);
+                        break;
+                    case 2:
+                        testLS(num);
+                        break;
+                    case 3:
+                        testMD(num);
+                        break;
+                }
+                block[index] = false;
+                cnt--;
+            }
+        }
+    }
+
+    void testBranch(int branchNum)
+    {
+        for (int i = 0; i < branchNum; i++)
+        {
+            try
+            {
+                addBranch();
+                //延迟槽
+                createDelaySlot();
+            } catch (UnknownInstrException e)
+            {
+                e.printError();
+            }
+            cnt++;
         }
     }
 }

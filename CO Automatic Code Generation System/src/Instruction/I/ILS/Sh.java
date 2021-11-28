@@ -7,19 +7,21 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
+import static java.lang.System.exit;
+
 public class Sh extends ILSInstruction
 {
     private final Set<Integer> hasVal;
 
-    public Sh(Set<Integer> hasVal, List<Integer>addrList)
+    public Sh(Set<Integer> hasVal, List<Integer> addrList)
     {
         this.setOp(InstructionDic.SH);
         this.hasVal = hasVal;
         this.setValue();
-        int addr=(this.getImm16()/4)*4;
-        if(!addrList.contains(addr))
+        int addr = this.getImm16() - this.getImm16() % 4;
+        if (!addrList.contains(addr))
         {
-            addrList.add(getImm16());
+            addrList.add(addr);
         }
     }
 
@@ -34,14 +36,14 @@ public class Sh extends ILSInstruction
         {
             rt = random.nextInt(28);
             //进行赋值的寄存器必须是有值的
-            if (this.hasVal.contains(rt))
+            if (rt != 0 && this.hasVal.contains(rt))
             {
                 return rt;
             }
             cnt++;
         }
         System.out.println("所有寄存器均未赋值");
-        System.exit(0);
+        exit(0);
         return 0;
     }
 

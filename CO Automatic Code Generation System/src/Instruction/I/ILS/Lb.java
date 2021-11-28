@@ -3,19 +3,25 @@ package Instruction.I.ILS;
 import Instruction.InstructionDic;
 import Instruction.RegDic;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
 public class Lb extends ILSInstruction
 {
-    public Lb(List<Integer> addrList, Set<Integer> writeProhibit, Set<Integer> hasVal)
+    public Lb(List<Integer> addrList, Set<Integer> writeProhibit, Set<Integer> hasVal, LinkedList<Integer> conflictReg)
     {
         this.setOp(InstructionDic.LB);
         this.setAddrList(addrList);
         this.setWriteProhibit(writeProhibit);
         this.setValue();
         hasVal.add(this.getRt());
+        conflictReg.addLast(this.getRt());
+        if(conflictReg.size()>3)
+        {
+            conflictReg.removeFirst();
+        }
     }
 
     @Override
@@ -58,7 +64,7 @@ public class Lb extends ILSInstruction
         return "lb $" + RegDic.RegName.get(this.getRt()) +
                 ", " +
                 this.getImm16() +
-                ", ($" +
+                "($" +
                 RegDic.RegName.get(this.getRs()) +
                 ")";
     }

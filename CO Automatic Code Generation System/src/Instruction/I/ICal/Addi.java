@@ -3,16 +3,15 @@ package Instruction.I.ICal;
 import Instruction.InstructionDic;
 import Instruction.RegDic;
 
+import java.util.LinkedList;
 import java.util.Set;
 
 public class Addi extends ICalInstruction
 {
-    public Addi(Set<Integer> writeProhibit, Set<Integer> hasVal)
+    public Addi(Set<Integer> writeProhibit, Set<Integer> hasVal, LinkedList<Integer> conflictReg)
     {
+        super(writeProhibit, hasVal,conflictReg);
         this.setOp(InstructionDic.ANDI);
-        this.setWriteProhibit(writeProhibit);
-        this.setValue();
-        hasVal.add(this.getRt());
     }
 
     @Override

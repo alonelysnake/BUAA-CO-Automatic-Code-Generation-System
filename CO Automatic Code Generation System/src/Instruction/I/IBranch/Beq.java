@@ -3,6 +3,7 @@ package Instruction.I.IBranch;
 import Instruction.InstructionDic;
 import Instruction.RegDic;
 
+import java.util.LinkedList;
 import java.util.List;
 
 public class Beq extends IBranchInstruction
@@ -19,18 +20,30 @@ public class Beq extends IBranchInstruction
         this.setLabelList(labelList);
     }
 */
-    public Beq(List<String> labelList)
+    public Beq(List<String> labelList, LinkedList<Integer> conflictReg)
     {
+        this.setConflictReg(conflictReg);
         this.setOp(InstructionDic.BEQ);
         this.setLabelList(labelList);
         this.setValue();
+        labelList.add("beq");
     }
 
     //知道跳转标签时的构造方法
-    public Beq(String label)
+    public Beq(String label, LinkedList<Integer> conflictReg)
     {
+        this.setConflictReg(conflictReg);
         this.setOp(InstructionDic.BEQ);
         this.setValue(label);
+    }
+
+    @Override
+    protected void setValue(String label)
+    {
+        this.setRs(this.chooseRs());
+        this.setRt(this.getRs());
+        this.setLabel(label);
+        this.setText(this.createMIPSText());
     }
 
     @Override

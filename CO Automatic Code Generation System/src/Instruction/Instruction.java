@@ -1,10 +1,13 @@
 package Instruction;
 
+import java.util.LinkedList;
+
 abstract public class Instruction
 {
-    private String op;
+    private String op = "000000";
     private String machineCode;
     private String text;
+    private LinkedList<Integer> ConflictReg;
 
     public String getOp()
     {
@@ -21,6 +24,11 @@ abstract public class Instruction
         return text;
     }
 
+    public LinkedList<Integer> getConflictReg()
+    {
+        return ConflictReg;
+    }
+
     public void setOp(String op)
     {
         this.op = op;
@@ -34,6 +42,11 @@ abstract public class Instruction
     public void setText(String text)
     {
         this.text = text;
+    }
+
+    public void setConflictReg(LinkedList<Integer> conflictReg)
+    {
+        ConflictReg = conflictReg;
     }
 
     abstract public String createMachineCode();

@@ -3,17 +3,16 @@ package Instruction.I.ICal;
 import Instruction.InstructionDic;
 import Instruction.RegDic;
 
+import java.util.LinkedList;
 import java.util.Random;
 import java.util.Set;
 
 public class Slti extends ICalInstruction
 {
-    public Slti(Set<Integer> writeProhibit, Set<Integer> hasVal)
+    public Slti(Set<Integer> writeProhibit, Set<Integer> hasVal, LinkedList<Integer> conflictReg)
     {
+        super(writeProhibit, hasVal, conflictReg);
         this.setOp(InstructionDic.SLTI);
-        this.setWriteProhibit(writeProhibit);
-        this.setValue();
-        hasVal.add(this.getRt());
     }
 
     //考虑测试一定相等、一定小于/大于的情况（用$0,$2,$3寄存器）
@@ -49,7 +48,9 @@ public class Slti extends ICalInstruction
             return 0;
         } else
         {
-            return super.chooseImm16();
+            int seed = new Random().nextInt();
+            Random random = new Random(seed);
+            return random.nextInt(32767);
         }
     }
 

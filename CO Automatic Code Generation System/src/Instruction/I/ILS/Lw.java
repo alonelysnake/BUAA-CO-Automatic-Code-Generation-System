@@ -3,19 +3,27 @@ package Instruction.I.ILS;
 import Instruction.InstructionDic;
 import Instruction.RegDic;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
+import static java.lang.System.exit;
+
 public class Lw extends ILSInstruction
 {
-    public Lw(List<Integer> addrList, Set<Integer> writeProhibit,Set<Integer>hasVal)
+    public Lw(List<Integer> addrList, Set<Integer> writeProhibit, Set<Integer> hasVal, LinkedList<Integer> conflictReg)
     {
         this.setOp(InstructionDic.LW);
         this.setAddrList(addrList);
         this.setWriteProhibit(writeProhibit);
         this.setValue();
         hasVal.add(this.getRt());
+        conflictReg.addLast(this.getRt());
+        if (conflictReg.size() > 3)
+        {
+            conflictReg.removeFirst();
+        }
     }
 
     @Override
@@ -36,7 +44,7 @@ public class Lw extends ILSInstruction
             cnt++;
         }
         System.out.println("所有寄存器均不可再使用");
-        System.exit(0);
+        exit(0);
         return 0;
     }
 
@@ -56,7 +64,7 @@ public class Lw extends ILSInstruction
         return "lw $" + RegDic.RegName.get(this.getRt()) +
                 ", " +
                 this.getImm16() +
-                ", ($" +
+                "($" +
                 RegDic.RegName.get(this.getRs()) +
                 ")";
     }

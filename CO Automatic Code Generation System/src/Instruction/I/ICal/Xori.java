@@ -3,16 +3,15 @@ package Instruction.I.ICal;
 import Instruction.InstructionDic;
 import Instruction.RegDic;
 
+import java.util.LinkedList;
 import java.util.Set;
 
 public class Xori extends ICalInstruction
 {
-    public Xori(Set<Integer> writeProhibit, Set<Integer> hasVal)
+    public Xori(Set<Integer> writeProhibit, Set<Integer> hasVal, LinkedList<Integer> conflictReg)
     {
+        super(writeProhibit, hasVal, conflictReg);
         this.setOp(InstructionDic.XORI);
-        this.setWriteProhibit(writeProhibit);
-        this.setValue();
-        hasVal.add(this.getRt());
     }
 
     @Override

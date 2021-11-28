@@ -5,19 +5,22 @@ import Instruction.RegDic;
 
 import java.util.Set;
 
-public class Jr extends RInstruction
+public class Jr extends RJumpInstruction
 {
-    //先固定jr返回值为31
-    public Jr(int rsNum, Set<Integer> writeProhibit)
+
+    public Jr(int rsNum)
     {
         this.setFunc(InstructionDic.JR);
-        this.setWriteProhibit(writeProhibit);
         this.setRs(rsNum);
+
         this.setValue();
+        /*
+        因为有延迟槽的原因，不再认为jr指令执行后马上可用，而是等延迟槽生成完毕后再设置为可用
         if(rsNum!=31)
         {
             writeProhibit.remove(rsNum);//jr之后就可以使用了
         }
+        */
     }
 
     @Override
@@ -30,18 +33,6 @@ public class Jr extends RInstruction
     protected int chooseRs()
     {
         return this.getRs();
-    }
-
-    @Override
-    protected int chooseRt()
-    {
-        return 0;
-    }
-
-    @Override
-    protected int chooseShamt()
-    {
-        return 0;
     }
 
     @Override

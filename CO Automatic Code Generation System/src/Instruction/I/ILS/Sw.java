@@ -34,7 +34,7 @@ public class Sw extends ILSInstruction
         {
             rt = random.nextInt(28);
             //进行赋值的寄存器必须是有值的
-            if (this.hasVal.contains(rt))
+            if (rt != 0 && this.hasVal.contains(rt))
             {
                 return rt;
             }

@@ -3,27 +3,40 @@ package Instruction.R;
 import Instruction.InstructionDic;
 import Instruction.RegDic;
 
+import java.util.LinkedList;
 import java.util.Set;
 
-public class Jalr extends RCalInstruction
+public class Jalr extends RJumpInstruction
 {
-    public Jalr(Set<Integer> writeProhibit, Set<Integer>hasVal, int rs)
+    public Jalr(Set<Integer> writeProhibit, Set<Integer> hasVal, LinkedList<Integer> conflictReg, int rs)
     {
         this.setFunc(InstructionDic.JALR);
         this.setWriteProhibit(writeProhibit);
         this.setHasVal(hasVal);
-        this.setValue(rs);
+        this.setRs(rs);
+
+        this.setValue();
         hasVal.add(this.getRd());
         writeProhibit.add(this.getRd());
+        conflictReg.addLast(this.getRd());
+        if (conflictReg.size() > 3)
+        {
+            conflictReg.removeFirst();
+        }
     }
 
-    public void setValue(int rs)
+    @Override
+    protected int chooseRd()
     {
-        this.setRd(this.chooseRd());
-        this.setRs(rs);
-        this.setRt(this.chooseRt());
-        this.setShamt(this.chooseShamt());
-        this.setText(this.createMIPSText());
+        //jalr使用1号$at寄存器？
+        System.out.println("jalr的chooseRd未完成");
+        return 1;
+    }
+
+    @Override
+    protected int chooseRs()
+    {
+        return this.getRs();
     }
 
     //rt固定为0

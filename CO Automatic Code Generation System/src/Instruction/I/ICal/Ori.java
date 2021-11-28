@@ -3,25 +3,30 @@ package Instruction.I.ICal;
 import Instruction.InstructionDic;
 import Instruction.RegDic;
 
+import java.util.LinkedList;
 import java.util.Random;
 import java.util.Set;
 
 public class Ori extends ICalInstruction
 {
-    public Ori(Set<Integer> writeProhibit, Set<Integer> hasVal)
+    //随机
+    public Ori(Set<Integer> writeProhibit, Set<Integer> hasVal, LinkedList<Integer> conflictReg)
     {
+        super(writeProhibit, hasVal, conflictReg);
         this.setOp(InstructionDic.ORI);
-        this.setWriteProhibit(writeProhibit);
-        this.setValue();
-        hasVal.add(this.getRt());
     }
 
     //指定了rs，imm
-    public Ori(Set<Integer> writeProhibit, int rs, String imm)
+    public Ori(Set<Integer> writeProhibit, LinkedList<Integer> conflictReg, int rs, String imm)
     {
         this.setOp(InstructionDic.ORI);
         this.setWriteProhibit(writeProhibit);
         this.setValue(rs, imm);
+        conflictReg.addLast(this.getRt());
+        if (conflictReg.size() > 3)
+        {
+            conflictReg.removeFirst();
+        }
     }
 
     //指定了rs，rt的构造方式
@@ -39,7 +44,15 @@ public class Ori extends ICalInstruction
     {
         int seed = new Random().nextInt();
         Random random = new Random(seed);
-        return random.nextInt(28);
+        int size = this.getConflictReg().size();
+        if (size < 3 || random.nextInt(10) < 5)
+        {
+            return random.nextInt(28);
+        } else
+        {
+            int index = random.nextInt(size);
+            return this.getConflictReg().get(index);
+        }
     }
 
     @Override

@@ -3,17 +3,16 @@ package Instruction.I.ICal;
 import Instruction.InstructionDic;
 import Instruction.RegDic;
 
+import java.util.LinkedList;
 import java.util.Random;
 import java.util.Set;
 
 public class Lui extends ICalInstruction
 {
-    public Lui(Set<Integer> writeProhibit, Set<Integer> hasVal)
+    public Lui(Set<Integer> writeProhibit, Set<Integer> hasVal, LinkedList<Integer> conflictReg)
     {
+        super(writeProhibit, hasVal, conflictReg);
         this.setOp(InstructionDic.LUI);
-        this.setWriteProhibit(writeProhibit);
-        this.setValue();
-        hasVal.add(this.getRt());
     }
 
     @Override

@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
+import static java.lang.System.exit;
+
 public class Sb extends ILSInstruction
 {
     private final Set<Integer> hasVal;
@@ -17,7 +19,7 @@ public class Sb extends ILSInstruction
         this.hasVal = hasVal;
         this.setAddrList(addrList);
         this.setValue();
-        int addr = (this.getImm16() / 4) * 4;
+        int addr = this.getImm16() - this.getImm16() % 4;
         if (!addrList.contains(addr))
         {
             addrList.add(addr);
@@ -35,7 +37,7 @@ public class Sb extends ILSInstruction
         {
             rt = random.nextInt(28);
             //进行赋值的寄存器必须是有值的
-            if (this.hasVal.contains(rt))
+            if (rt != 0 && this.hasVal.contains(rt))
             {
                 return rt;
             }

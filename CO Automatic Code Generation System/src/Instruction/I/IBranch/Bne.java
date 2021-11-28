@@ -3,6 +3,7 @@ package Instruction.I.IBranch;
 import Instruction.InstructionDic;
 import Instruction.RegDic;
 
+import java.util.LinkedList;
 import java.util.List;
 
 public class Bne extends IBranchInstruction
@@ -20,11 +21,13 @@ public class Bne extends IBranchInstruction
         this.labelList = labelList;
     }
     */
-    public Bne(List<String> labelList)
+    public Bne(List<String> labelList, LinkedList<Integer> conflictReg)
     {
+        this.setConflictReg(conflictReg);
         this.setOp(InstructionDic.BNE);
         this.setLabelList(labelList);
         this.setValue();
+        labelList.add("bne");
     }
 
     //知道跳转标签时的构造方法
@@ -32,6 +35,16 @@ public class Bne extends IBranchInstruction
     {
         this.setOp(InstructionDic.BNE);
         this.setValue(label);
+    }
+
+    @Override
+    protected void setValue(String label)
+    {
+        //简化为v0和v1（最小值和最大值）进行比较
+        this.setRs(2);
+        this.setRt(3);
+        this.setLabel(label);
+        this.setText(this.createMIPSText());
     }
 
     @Override
